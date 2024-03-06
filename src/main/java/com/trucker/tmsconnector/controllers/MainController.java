@@ -25,9 +25,26 @@ public class MainController {
 
     @SneakyThrows
     @GetMapping("/api/all")
-    public String getAll(){
-        List<InboundEntry> inboundEntryList = entryRepository.findAll();
-        return objectMapper.writeValueAsString(inboundEntryList);
+    public List<InboundEntry> getAll(){
+        return entryRepository.findAll();
+    }
+
+    @GetMapping("/api/")
+    public InboundEntry getEntry(@RequestParam Long id){
+        return entryRepository.findById(id).orElseThrow();
+    }
+
+    @DeleteMapping("/api/")
+    public void deleteEntry(@RequestParam Long id){
+        entryRepository.deleteById(id);
+    }
+
+    @PutMapping("/api/add")
+    public String changeEntry(@RequestParam InboundEntry inboundEntry){
+        if (!entryRepository.existsById(inboundEntry.getId())){
+            return "No such row";
+        }
+        return entryRepository.save(inboundEntry).toString();
     }
 
 
