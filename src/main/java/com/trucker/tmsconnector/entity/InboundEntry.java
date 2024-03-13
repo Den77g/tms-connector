@@ -1,10 +1,14 @@
 package com.trucker.tmsconnector.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name = "entries")
 public class InboundEntry {
     @Id
