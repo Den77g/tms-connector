@@ -29,6 +29,7 @@ public class MainController {
     public void addEntry(@RequestBody EntryDTO entryDTO){
         log.info("New row: " + entryRepository.save(
                 InboundEntry.builder()
+                        .id(7L)
                         .name(entryDTO.getName())
                         .value(entryDTO.getValue())
                         .build()));
