@@ -1,14 +1,21 @@
 package com.trucker.tmsconnector.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trucker.tmsconnector.DTO.BookingEntryDTO;
 import com.trucker.tmsconnector.DTO.EntryDTO;
+import com.trucker.tmsconnector.DTO.TransportAcceptedEntryDTO;
+import com.trucker.tmsconnector.entity.BookingEntry;
 import com.trucker.tmsconnector.entity.InboundEntry;
+import com.trucker.tmsconnector.entity.TransportAcceptedEntry;
+import com.trucker.tmsconnector.repositories.BookingEntryRepo;
 import com.trucker.tmsconnector.repositories.EntryRepository;
+import com.trucker.tmsconnector.repositories.TransportAcceptedEntryRepo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +27,12 @@ import java.util.List;
 public class MainController {
     private final ObjectMapper objectMapper;
     private final EntryRepository entryRepository;
+    private final TransportAcceptedEntryRepo transportAcceptedEntryRepo;
 
-    @Operation(
+    private final BookingEntryRepo bookingEntryRepo;
+
+
+    /*@Operation(
             summary = "Add new entry to DB",
             description = "Get a new DTO entry object and builder collect and insert it to DB"
     )
@@ -33,6 +44,41 @@ public class MainController {
                         .name(entryDTO.getName())
                         .value(entryDTO.getValue())
                         .build()));
+    }*/
+
+    @Operation(
+            summary = "Add new transport accepted entry to DB",
+            description = "Get a new transport accepted DTO entry object and builder collect and insert it to DB"
+    )
+    @PostMapping("/api/v1/add_transport_accepted")
+    public void addTransportAcceptedEntry(@RequestBody TransportAcceptedEntryDTO transportAcceptedEntryDTO){
+        log.info("New TA_row: " + transportAcceptedEntryRepo.save(
+                TransportAcceptedEntry.builder()
+                        .scheduling_unit(transportAcceptedEntryDTO.getScheduling_unit())
+                        .transport_number(transportAcceptedEntryDTO.getTransport_number())
+                        .carrier_id(transportAcceptedEntryDTO.getCarrier_id())
+                        .price(transportAcceptedEntryDTO.getPrice())
+                        .currency(transportAcceptedEntryDTO.getCurrency())
+                        .build()));
+    }
+
+    @PostMapping("/api/v1/add_booking_event")
+    public void addTransportEvent(@RequestBody BookingEntryDTO bookingEntryDTO){
+        log.info("New Transport Event: " + bookingEntryRepo.save(
+                BookingEntry.builder()
+                        .event(bookingEntryDTO.getEvent())
+                        .currentTimestampValue(bookingEntryDTO.getCurrent_timestamp())
+                        .schedulingUnit(bookingEntryDTO.getScheduling_unit())
+                        .transportNumber(bookingEntryDTO.getTransport_number())
+                        .timeSlotDate(bookingEntryDTO.getTime_slot_date())
+                        .timeSlotTime(bookingEntryDTO.getTime_slot_time())
+                        .loadingGate(bookingEntryDTO.getLoading_gate())
+                        .driverName(bookingEntryDTO.getDriver_name())
+                        .licencePlate(bookingEntryDTO.getLicence_plate())
+                        .driverPhone(bookingEntryDTO.getDriver_phone())
+                        .comment(bookingEntryDTO.getComment())
+                        .build()
+        ));
     }
 
     @SneakyThrows
