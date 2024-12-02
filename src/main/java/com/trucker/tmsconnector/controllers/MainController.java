@@ -3,12 +3,15 @@ package com.trucker.tmsconnector.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trucker.tmsconnector.DTO.BookingEntryDTO;
 import com.trucker.tmsconnector.DTO.EntryDTO;
+import com.trucker.tmsconnector.DTO.OrderEntryDTO;
 import com.trucker.tmsconnector.DTO.TransportAcceptedEntryDTO;
 import com.trucker.tmsconnector.entity.BookingEntry;
 import com.trucker.tmsconnector.entity.InboundEntry;
+import com.trucker.tmsconnector.entity.OrderEntry;
 import com.trucker.tmsconnector.entity.TransportAcceptedEntry;
 import com.trucker.tmsconnector.repositories.BookingEntryRepo;
 import com.trucker.tmsconnector.repositories.EntryRepository;
+import com.trucker.tmsconnector.repositories.OrderEntryRepo;
 import com.trucker.tmsconnector.repositories.TransportAcceptedEntryRepo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,35 +19,43 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 @Tag(name = "main_methods")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class MainController {
-    private final ObjectMapper objectMapper;
     private final EntryRepository entryRepository;
     private final TransportAcceptedEntryRepo transportAcceptedEntryRepo;
 
     private final BookingEntryRepo bookingEntryRepo;
 
 
-    /*@Operation(
-            summary = "Add new entry to DB",
-            description = "Get a new DTO entry object and builder collect and insert it to DB"
-    )
-    @PostMapping("/api/add")
-    public void addEntry(@RequestBody EntryDTO entryDTO){
-        log.info("New row: " + entryRepository.save(
-                InboundEntry.builder()
-                        .id(7L)
-                        .name(entryDTO.getName())
-                        .value(entryDTO.getValue())
-                        .build()));
-    }*/
+
+    @PostMapping("/order")
+    public String handleOrderPostRequest(@RequestBody OrderEntryDTO order) {
+
+        String url = "https://integration.app/tms_customer_configuration/v1";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<OrderEntryDTO> request = new HttpEntity<>(order, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+        System.out.println("Response from external API: " + response.getBody());
+        return "Order processed successfully with response: " + response.getBody();
+    }
+
+
 
     @Operation(
             summary = "Add new transport accepted entry to DB",
@@ -104,47 +115,4 @@ public class MainController {
         }
         return entryRepository.save(inboundEntry).toString();
     }
-
-
-
-
-
-
-
-
-
-/*
-
-    @GetMapping("/api/main")
-    public String mainListener(){
-        return "Hello world";
-    }
-
-    @GetMapping("/api/entry")
-    public String giveEntry(){
-        InboundEntry inboundEntry = new InboundEntry("Value 1", "Name 1");
-        String jsonData = "no data";
-
-        try {
-            jsonData = objectMapper.writeValueAsString(inboundEntry);
-        }catch (JsonProcessingException e){
-            System.out.println("Error of inbound entry");
-        }
-
-        return jsonData;
-    }
-
-    @PostMapping("/api/special")
-    public String giveSpacialEntry(@RequestParam String value){
-        InboundEntry inboundEntry = new InboundEntry(value, "Name 1");
-        String jsonData = "no data";
-
-        try {
-            jsonData = objectMapper.writeValueAsString(inboundEntry);
-        }catch (JsonProcessingException e){
-            System.out.println("Error of inbound entry");
-        }
-
-        return jsonData;
-    }*/
 }

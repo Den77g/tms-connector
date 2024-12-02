@@ -14,10 +14,6 @@ public class Controller {
 
     private final EntryRepository entryRepository;
 
-    /*public Controller(KafkaProducer kafkaProducer) {
-        this.kafkaProducer = kafkaProducer;
-    }*/
-
     public Controller(KafkaProducer kafkaProducer, EntryRepository entryRepository) {
         this.kafkaProducer = kafkaProducer;
         this.entryRepository = entryRepository;
@@ -25,7 +21,6 @@ public class Controller {
 
     @PostMapping("/kafka/send")
     public String send(@RequestParam long id){
-        /*entryRepository.findById(id).toString();*/
         kafkaProducer.sendMessage(entryRepository.findById(id).toString());
 
         return "Success";
